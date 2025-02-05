@@ -1,0 +1,11 @@
+with cte as
+(
+select lag(num) over (order by id) as num_last,
+        num,
+        lead(num) over (order by id) as num_next
+from logs
+)
+select distinct num as ConsecutiveNums
+from cte
+where num_last = num
+and num = num_next
