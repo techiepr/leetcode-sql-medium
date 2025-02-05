@@ -1,0 +1,17 @@
+with first_login_cte as
+(
+select player_id,
+       min(event_date) as first_login_date
+from activity
+group by player_id
+)
+, cte2 as
+(
+select a1.player_id, count(*) as num_players
+from activity a1
+join first_login_cte as f1
+on a1.player_id = f1.player_id
+where a1.event_date = date_add(first_login_date, interval 1 day)
+)
+select round(num_players/(select count(distinct player_id) from activity),2) as fraction
+from cte2
