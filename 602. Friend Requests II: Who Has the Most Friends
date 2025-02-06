@@ -1,0 +1,46 @@
+with cte as
+(
+select requester_id
+from RequestAccepted
+union all
+select accepter_id
+from RequestAccepted
+), cte1 as
+(
+select requester_id,
+       count(*) as num
+from cte
+group by 1
+), cte2 as
+(
+select requester_id,
+       num,
+       dense_rank() over (order by num desc) as dnrnk
+from cte1
+)
+select requester_id as id,
+       num
+from cte2 
+where dnrnk = 1
+
+
+------------------------------------------------------
+
+
+
+with cte as
+(
+select requester_id
+from RequestAccepted
+union all
+select accepter_id
+from RequestAccepted
+)
+(
+select requester_id as id,
+       count(*) as num
+from cte
+group by 1
+order by count(*) desc
+limit 1
+)
