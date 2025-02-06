@@ -1,0 +1,22 @@
+with cte as
+(
+select question_id,
+       count(case when action = 'answer' then 1 else null end) as num_ans,
+       count(case when action = 'show' then 1 else null end) as num_show
+from surveylog
+group by q_num
+), cte1 as
+(
+select question_id,
+       num_ans/num_show as ans_rate
+from cte
+order by ans_rate
+), cte2 as
+(
+select question_id as survey_log,
+       dense_rank() over (order by ans_rate desc, question_id)   as rnk
+from cte1
+)
+select survey_log
+from cte2
+where rnk = 1      
