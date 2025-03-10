@@ -1,0 +1,21 @@
+with cte as
+(
+select s.user_id
+       ,p.product_id
+       ,sum(quantity*price) as amount
+from sales s
+join product p
+on s.product_id = p.product_id
+group by s.user_id, p.product_id
+),cte1 as
+(
+select user_id
+       ,product_id
+       ,amount
+       ,dense_rank() over (partition by user_id order by amount desc) as dnsrnk
+from cte
+)
+select user_id
+       ,product_id
+from cte1
+where dnsrnk = 1
