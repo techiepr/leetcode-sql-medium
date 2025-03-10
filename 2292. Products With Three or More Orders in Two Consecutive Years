@@ -1,0 +1,14 @@
+with cte as
+(
+select product_id
+       ,count(order_id) as num_orders
+       ,year(purchase_date) as years
+from orders 
+group by product_id, year(purchase_date)
+having num_orders >= 3
+)
+select distinct c1.product_id
+from cte c1
+join cte c2
+on c1.product_id = c2.product_id
+and c2.years - c1.years = 1
