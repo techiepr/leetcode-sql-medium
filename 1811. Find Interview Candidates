@@ -1,0 +1,27 @@
+WITH medal_winners AS (
+    SELECT contest_id, gold_medal AS user_id FROM contests
+    UNION ALL
+    SELECT contest_id, silver_medal FROM contests
+    UNION ALL
+    SELECT contest_id, bronze_medal FROM contests
+),
+consecutive_medals AS (
+    SELECT user_id, contest_id,
+           LAG(contest_id, 1) OVER (PARTITION BY user_id ORDER BY contest_id) AS prev1,
+           LAG(contest_id, 2) OVER (PARTITION BY user_id ORDER BY contest_id) AS prev2
+    FROM medal_winners
+),
+qualified_users AS (
+    SELECT DISTINCT user_id
+    FROM consecutive_medals
+    WHERE contest_id = prev1 + 1 AND prev1 = prev2 + 1
+    UNION
+    SELECT gold_medal AS user_id
+    FROM contests
+    GROUP BY gold_medal
+    HAVING COUNT(gold_medal) >= 3
+)
+SELECT u.name, u.mail
+FROM users u
+JOIN qualified_users q
+ON u.user_id = q.user_id;
