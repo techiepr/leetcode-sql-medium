@@ -1,0 +1,25 @@
+with cte as
+(
+select year
+       ,Wimbledon as player_id
+from Championships
+union all
+select year,
+       Fr_open as player_id
+from Championships
+union all
+select year,
+       US_open as player_id
+from Championships
+union all
+select year,
+       Au_open as player_id
+from Championships
+)
+select p1.player_id
+       ,p1.player_name
+       ,count(*) as grand_slams_count
+from cte c1
+join players p1
+on c1.player_id = p1.player_id
+group by p1.player_id, p1.player_name
