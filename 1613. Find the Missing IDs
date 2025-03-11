@@ -1,0 +1,12 @@
+with recursive rcte as
+(
+select customer_id
+from customers
+union 
+select customer_id + 1
+from rcte 
+where customer_id < (select max(customer_id) from customers)
+)
+select customer_id as ids
+from rcte
+where customer_id not in (Select customer_id from customers)
