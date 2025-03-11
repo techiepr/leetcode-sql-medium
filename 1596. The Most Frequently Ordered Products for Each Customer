@@ -1,0 +1,27 @@
+with cte as
+(
+select c1.customer_id
+       ,o1.product_id
+       ,count(*) as num_product
+       ,p1.product_name
+       ,p1.price
+from customers c1
+join orders o1
+on c1.customer_id = o1.customer_id
+join products p1
+on o1.product_id = p1.product_id
+group by 1,2,4,5
+),cte1 as
+(
+select  customer_id
+       ,product_id
+       ,product_name
+       ,price
+       ,dense_rank() over (partition by customer_id order by num_product desc) as dnsrnk
+from cte
+)
+select customer_id
+       ,product_id
+       ,product_name
+from cte1
+where dnsrnk = 1
