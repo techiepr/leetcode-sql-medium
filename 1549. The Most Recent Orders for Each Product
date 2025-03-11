@@ -1,0 +1,20 @@
+with cte as
+(
+select p1.product_id
+       ,o1.order_date
+       ,dense_rank() over (partition by p1.product_id order by o1.order_date desc) as dnsrnk
+       ,p1.product_name
+       ,o1.order_id
+from customers c1
+join orders o1
+on c1.customer_id = o1.customer_id
+join products p1
+on o1.product_id = p1.product_id
+)
+select product_name
+       ,product_id
+       ,order_id
+       ,order_date
+from cte
+where dnsrnk = 1
+order by product_name, product_id, order_id
