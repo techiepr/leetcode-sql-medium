@@ -1,0 +1,21 @@
+with cte as
+(
+select distinct a1.id
+      ,a1.name
+      ,l1.login_date
+      ,dense_rank() over (partition by a1.id order by a1.id, l1.login_date) as rwn
+from accounts a1
+join logins l1
+on a1.id = l1.id
+)
+,cte1 as
+(
+select *
+      ,date_sub(login_date, interval rwn day) as grp
+from cte
+)
+select distinct id
+      ,name
+from cte1
+group by id,name,grp
+having count(*) >= 5
